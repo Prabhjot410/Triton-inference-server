@@ -9,11 +9,7 @@ This repository demonstrates how to deploy a LLaMA-based model using NVIDIA Trit
 You can run the Triton server container with the mounted model repository as follows:
 
 ```bash
-docker run --gpus=all --rm -it \
-  -p8000:8000 -p8001:8001 -p8002:8002 \
-  -v/path/to/your/model/repo:/models \
-  nvcr.io/nvidia/tritonserver:24.05-py3 \
-  tritonserver --model-repository=/models
+docker run --gpus all -it --rm --net=host --shm-size=1G --ulimit memlock=-1 --ulimit stack=67108864 -v ${PWD}/model_repository:/opt/tritonserver/model_repository triton_transformer_server tritonserver --model-repository=model_repository --log-verbose=1 --log-info=true
 ```
 
 Replace `/path/to/your/model/repo` with the actual path to your Triton model directory containing `llama1`.
@@ -25,7 +21,7 @@ Replace `/path/to/your/model/repo` with the actual path to your Triton model dir
 After the server is up and running, run the Python test client:
 
 ```bash
-python test_llama.py
+python client_test.py
 ```
 
 ---
@@ -69,9 +65,9 @@ python test_llama.py
 
 - Ensure your model directory is properly structured:
   ```
-  /models/
-    llama1/
-      1/
+  models|
+    llama1|
+      1|
         model.py
         ...
       config.pbtxt
@@ -100,7 +96,3 @@ python test_llama.py
 - Sequential prompt processing with contextual memory
 
 ---
-
-## 📧 Contact
-
-For help, reach out to the maintainers or open an issue in your repo.
